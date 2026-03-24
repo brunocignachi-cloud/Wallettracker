@@ -1,0 +1,322 @@
+swagger: "2.0"
+
+info:
+  version: "1.0.0"
+  title: WalletTracker API
+  description: API para gerenciamento de despesas pessoais com autenticação JWT e suporte a mídia
+
+host: localhost:3000
+basePath: /
+schemes:
+  - http
+
+tags:
+  - name: Auth
+  - name: Expenses
+  - name: ExpenseMedia
+
+# =====================
+# JWT
+# =====================
+securityDefinitions:
+  BearerAuth:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: >
+      JWT Authorization header.
+      Exemplo: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+# =====================
+# MODELS (DEFINITIONS)
+# =====================
+definitions:
+
+  # ---------- AUTH REQUESTS ----------
+  Register:
+    type: object
+    required: [name, email, password]
+    properties:
+      name:
+        type: string
+        example: "Vinícius"
+      email:
+        type: string
+        example: "vinicius@email.com"
+      password:
+        type: string
+        format: password
+        example: "123456"
+      premium:
+        type: boolean
+        example: false
+
+  Login:
+    type: object
+    required: [email, password]
+    properties:
+      email:
+        type: string
+        example: "vinicius@email.com"
+      password:
+        type: string
+        format: password
+        example: "123456"
+
+  # ---------- USER RESPONSE ----------
+  User:
+    type: object
+    properties:
+      _id:
+        type: string
+        example: "69c17f734ded9a1da2e06eab"
+      name:
+        type: string
+      email:
+        type: string
+      premium:
+        type: boolean
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+
+  # ---------- EXPENSE ----------
+  Expense:
+    type: object
+    required: [description, amount, date, category]
+    properties:
+      _id:
+        type: string
+      description:
+        type: string
+      amount:
+        type: number
+        format: float
+      date:
+        type: string
+        format: date
+      category:
+        type: string
+      user:
+        type: string
+        description: ID do usuário dono da despesa
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+
+  # ---------- EXPENSE MEDIA ----------
+  ExpenseMedia:
+    type: object
+    properties:
+      _id:
+        type: string
+      expenseId:
+        type: string
+      userId:
+        type: string
+      type:
+        type: string
+        enum: [photo, video]
+      url:
+        type: string
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+
+# =====================
+# PATHS
+# =====================
+paths:
+
+  # ---------- AUTH ----------
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Registrar novo usuário
+      consumes: [application/json]
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/Register"
+      responses:
+        201:
+          description: Usuário criado com sucesso
+          schema:
+            $ref: "#/definitions/User"
+        400:
+          description: Erro de validação
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login do usuário
+      consumes: [application/json]
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/Login"
+      responses:
+        200:
+          description: Login realizado com sucesso
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+              user:
+                $ref: "#/definitions/User"
+        401:
+          description: Credenciais inválidas
+
+  # ---------- EXPENSES ----------
+  /expenses:
+    get:
+      tags: [Expenses]
+      summary: Listar despesas do usuário logado
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Lista de despesas
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Expense"
+
+    post:
+      tags: [Expenses]
+      summary: Criar nova despesa
+      security:
+        - BearerAuth: []
+      consumes: [application/json]
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/Expense"
+      responses:
+        201:
+          description: Despesa criada
+          schema:
+            $ref: "#/definitions/Expense"
+
+  /expenses/{id}:
+    get:
+      tags: [Expenses]
+      summary: Buscar despesa por ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+      responses:
+        200:
+          description: Despesa encontrada
+          schema:
+            $ref: "#/definitions/Expense"
+        404:
+          description: Despesa não encontrada
+
+    put:
+      tags: [Expenses]
+      summary: Atualizar despesa
+      security:
+        - BearerAuth: []
+      consumes: [application/json]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/Expense"
+      responses:
+        200:
+          description: Despesa atualizada
+
+    delete:
+      tags: [Expenses]
+      summary: Remover despesa
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+      responses:
+        200:
+          description: Despesa removida
+
+  # ---------- EXPENSE MEDIA ----------
+  /expenses/{id}/media:
+    post:
+      tags: [ExpenseMedia]
+      summary: Upload de mídia da despesa (premium)
+      security:
+        - BearerAuth: []
+      consumes: [multipart/form-data]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+        - in: formData
+          name: media
+          type: file
+          required: true
+      responses:
+        201:
+          description: Mídia enviada com sucesso
+
+    get:
+      tags: [ExpenseMedia]
+      summary: Listar mídias da despesa
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+      responses:
+        200:
+          description: Lista de mídias
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ExpenseMedia"
+
+  /expenses/media/{mediaId}:
+    delete:
+      tags: [ExpenseMedia]
+      summary: Remover mídia da despesa
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: mediaId
+          required: true
+          type: string
+      responses:
+        200:
+          description: Mídia removida
