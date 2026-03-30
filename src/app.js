@@ -13,6 +13,8 @@ routes(app);
 
 const swaggerDocument = YAML.load("./src/config/swagger.yaml");
 
+console.log("APP CARREGANDO")
+
 app.use("/uploads", express.static(path.resolve("uploads")));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
