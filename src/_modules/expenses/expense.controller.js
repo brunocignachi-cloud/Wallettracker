@@ -1,10 +1,13 @@
 import Expense from "./expense.model.js";
+import ExpenseMedia from "../expensesMedia/expenseMedia.model.js";
+import fs from "fs";
+import path from "path";
 
 class ExpenseController {
 
   static getAllExpenses = async (req, res, next) => {
     try {
-      const userId = req.user.id; 
+      const userId = req.user.id;
 
       const expenses = await Expense.find({ user: userId }).lean();
 
@@ -96,12 +99,21 @@ class ExpenseController {
     }
   };
 
+  /**
+   * ✅ Exclusão em cascata:
+   * - Remove arquivos físicos
+   * - Remove documentos ExpenseMedia
+   * - Remove a despesa
+   *
+   * ⚠️ NÃO depende de premiumOnly
+   */
   static deleteExpense = async (req, res, next) => {
     try {
       const userId = req.user.id;
       const expenseId = req.params.id;
 
-      const expense = await Expense.findOneAndDelete({
+      // ✅ Verifica ownership
+      const expense = await Expense.findOne({
         _id: expenseId,
         user: userId
       });
@@ -112,13 +124,29 @@ class ExpenseController {
         });
       }
 
-      if (req.headers.accept?.includes("text/html")) {
-        return res.redirect("/expenses");
+      // ✅ Busca mídias vinculadas
+      const medias = await ExpenseMedia.find({ expenseId });
+
+      // ✅ Remove arquivos físicos
+      for (const media of medias) {
+        if (media.url) {
+          const filePath = path.resolve(media.url.replace(/^\//, ""));
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+          }
+        }
       }
 
+      // ✅ Remove documentos de mídia
+      await ExpenseMedia.deleteMany({ expenseId });
+
+      // ✅ Remove a despesa
+      await Expense.deleteOne({ _id: expenseId });
+
       return res.status(200).json({
-        message: "Expense removed successfully"
+        message: "Expense and related media removed successfully"
       });
+
     } catch (error) {
       next(error);
     }

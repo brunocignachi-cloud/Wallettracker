@@ -8,6 +8,8 @@ router
     .get("/", authMiddleware, userController.getAllUsers)
     .get("/:id", authMiddleware, userController.getUserById)
     .put("/:id", authMiddleware, userController.updateUser)
-    .delete("/:id", authMiddleware, userController.deleteUser);
+    .delete("/:id", authMiddleware, userController.deleteUser)
+    .patch("/upgrade", authMiddleware, userController.upgradeToPremium)
+    .patch("/downgrade",authMiddleware,userController.downgradeFromPremium);
 
 export default router;

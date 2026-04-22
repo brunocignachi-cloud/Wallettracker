@@ -1,0 +1,92 @@
+# ============================================================
+# Flutter / Dart
+# ============================================================
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+**/doc/api/
+**/ios/Flutter/.last_build_id
+
+# Arquivos gerados automaticamente pelo Flutter
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Flutter/flutter_lldbinit
+**/ios/Flutter/flutter_lldb_helper.py
+android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
+
+# Logs do Flutter
+flutter_*.log
+*.log
+
+# ============================================================
+# Android
+# ============================================================
+**/android/.gradle/
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/gradle/wrapper/gradle-wrapper.jar
+**/android/local.properties
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+**/android/key.properties
+*.keystore
+*.jks
+
+# ============================================================
+# iOS / macOS
+# ============================================================
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/macos/Pods/
+**/macos/.symlinks/
+ios/Flutter/ephemeral
+
+# ============================================================
+# IDEs
+# ============================================================
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.swp
+
+# ============================================================
+# Sistema operacional
+# ============================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ============================================================
+# Variáveis de ambiente / segredos
+# ============================================================
+.env
+.env.*
+!.env.example
+google-services.json
+GoogleService-Info.plist
+
+# ============================================================
+# Outros
+# ============================================================
+*.class
+*.pyc
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+app.*.symbols
+app.*.map.json

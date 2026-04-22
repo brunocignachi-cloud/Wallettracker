@@ -24,6 +24,22 @@ const userService = {
 
     async findByEmail(email) {
         return await User.findOne({ email });
+    },
+
+    async upgradeToPremium(userId) {
+        return await User.findByIdAndUpdate(
+            userId,
+            { premium: true },
+            { new: true }
+        );
+    }, 
+
+    async downgradeFromPremium(userId) {
+    return await User.findByIdAndUpdate(
+        userId,
+        { premium: false },
+        { new: true }
+    );
     }
 
 };

@@ -4,8 +4,18 @@ import path from "path";
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const expenseId = req.params.id;
-    const dir = path.resolve("uploads", "expenses", expenseId);
+    const { expenseId } = req.params;
+
+    if (!expenseId) {
+      return cb(new Error("expenseId não informado na rota"));
+    }
+
+    const dir = path.join(
+      process.cwd(),
+      "uploads",
+      "expenses",
+      expenseId
+    );
 
     fs.mkdirSync(dir, { recursive: true });
     cb(null, dir);
@@ -17,11 +27,21 @@ const storage = multer.diskStorage({
   }
 });
 
+const allowedImageExtensions = [".jpg", ".jpeg", ".png", ".webp"];
+const allowedVideoExtensions = [".mp4", ".mov", ".avi", ".mkv"];
+
 const fileFilter = (req, file, cb) => {
-  if (
+  const ext = path.extname(file.originalname).toLowerCase();
+
+  const isImage =
     file.mimetype.startsWith("image/") ||
-    file.mimetype.startsWith("video/")
-  ) {
+    allowedImageExtensions.includes(ext);
+
+  const isVideo =
+    file.mimetype.startsWith("video/") ||
+    allowedVideoExtensions.includes(ext);
+
+  if (isImage || isVideo) {
     cb(null, true);
   } else {
     cb(new Error("Tipo de arquivo não suportado"), false);
@@ -32,6 +52,6 @@ export const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 20 * 1024 * 1024 
+    fileSize: 20 * 1024 * 1024, // 20MB
   }
 });
