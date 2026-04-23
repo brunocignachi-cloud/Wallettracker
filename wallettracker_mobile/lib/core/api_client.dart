@@ -1,5 +1,5 @@
 class ApiClient {
-  static const String baseUrl = 'http://localhost:3000';
+  static const String baseUrl = 'https://SEU-BACKEND.onrender.com';
 
   static Map<String, String> headers({String? token}) {
     return {
