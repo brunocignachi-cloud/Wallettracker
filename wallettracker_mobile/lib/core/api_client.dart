@@ -1,5 +1,5 @@
 class ApiClient {
-  static const String baseUrl = 'https://SEU-BACKEND.onrender.com';
+  static const String baseUrl = 'https://wallettracker-v12.onrender.com';
 
   static Map<String, String> headers({String? token}) {
     return {
